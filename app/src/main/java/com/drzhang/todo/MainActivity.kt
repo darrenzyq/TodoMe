@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import com.drzhang.todo.data.TaskRepository
@@ -30,7 +30,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var darkTheme by rememberSaveable { mutableStateOf(isSystemInDarkTheme()) }
+            val systemDark = isSystemInDarkTheme()
+            var darkTheme by rememberSaveable { mutableStateOf(systemDark) }
             MyToDoTheme(darkTheme = darkTheme) {
                 MainScreen(
                     viewModel = viewModel,

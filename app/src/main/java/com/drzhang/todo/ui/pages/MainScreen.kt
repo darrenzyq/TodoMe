@@ -16,11 +16,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
@@ -48,11 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.drzhang.todo.R
 import com.drzhang.todo.data.TaskEntity
 import com.drzhang.todo.data.TaskPriority
 import com.drzhang.todo.data.TaskTab
@@ -73,14 +75,24 @@ fun MainScreen(
     Scaffold(
         floatingActionButton = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                val iconSize = 24.dp
+
                 FloatingActionButton(onClick = onToggleTheme) {
                     Icon(
-                        imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                        contentDescription = null
+                        painter = painterResource(
+                            id = if (isDarkTheme) R.drawable.drak_mode else R.drawable.white_mode
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier.size(iconSize)
                     )
                 }
+
                 FloatingActionButton(onClick = { viewModel.addTask() }) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(iconSize)
+                    )
                 }
             }
         }
