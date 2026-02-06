@@ -47,9 +47,7 @@ class TodoApp : Application() {
                     put(MediaStore.MediaColumns.DISPLAY_NAME, BACKUP_FILE_NAME)
                     put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream")
                     put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/$BACKUP_DIR")
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        put(MediaStore.MediaColumns.IS_PENDING, 1)
-                    }
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
                 }
             )?.let { uri ->
                 contentResolver.openOutputStream(uri, "w")?.use { output ->
@@ -58,16 +56,14 @@ class TodoApp : Application() {
                     }
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    contentResolver.update(
-                        uri,
-                        ContentValues().apply {
-                            put(MediaStore.MediaColumns.IS_PENDING, 0)
-                        },
-                        null,
-                        null
-                    )
-                }
+                contentResolver.update(
+                    uri,
+                    ContentValues().apply {
+                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    },
+                    null,
+                    null
+                )
             }
         }.onFailure {
             Log.e(TAG, "Failed to backup database on app start", it)
