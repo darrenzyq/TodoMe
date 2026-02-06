@@ -4,13 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import com.drzhang.todo.data.TaskRepository
 import com.drzhang.todo.mode.TaskViewModel
@@ -32,8 +30,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyToDoTheme {
-                MainScreen(viewModel)
+            var darkTheme by rememberSaveable { mutableStateOf(isSystemInDarkTheme()) }
+            MyToDoTheme(darkTheme = darkTheme) {
+                MainScreen(
+                    viewModel = viewModel,
+                    isDarkTheme = darkTheme,
+                    onToggleTheme = { darkTheme = !darkTheme }
+                )
             }
         }
     }
