@@ -11,6 +11,8 @@ import com.drzhang.todo.data.TaskPriority
 import com.drzhang.todo.data.TaskRepository
 import com.drzhang.todo.data.TaskStatus
 import com.drzhang.todo.data.TaskTab
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -42,26 +44,18 @@ class TaskViewModel(
     private val _tabTasksUiState: StateFlow<TabTasksUiState> =
         _currentTab.flatMapLatest { tab ->
             repository.getTasks(tab)
-                .map<List<TaskEntity>,TabTasksUiState> {
-                    Thread.sleep(2000)
-                    TabTasksUiState(tasks = it, isLoading = false)
+                .map { tasks ->
+                    delay(500)
+                    TabTasksUiState(tasks = tasks, isLoading = false)
                 }
+                .flowOn(Dispatchers.IO)
                 .onStart { emit(TabTasksUiState(isLoading = true)) }
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5_000),
-            TabTasksUiState()
+            TabTasksUiState(isLoading = true)
         )
-
-    val tasks: StateFlow<List<TaskEntity>> =
-        _tabTasksUiState
-            .map { it.tasks }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-    val isTabLoading: StateFlow<Boolean> =
-        _tabTasksUiState
-            .map { it.isLoading }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val tasksState: StateFlow<TabTasksUiState> = _tabTasksUiState
 
     fun switchTab(tab: TaskTab) {
         _currentTab.value = tab
