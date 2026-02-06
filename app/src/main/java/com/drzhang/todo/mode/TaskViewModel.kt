@@ -42,7 +42,10 @@ class TaskViewModel(
     private val _tabTasksUiState: StateFlow<TabTasksUiState> =
         _currentTab.flatMapLatest { tab ->
             repository.getTasks(tab)
-                .map<TabTasksUiState> { TabTasksUiState(tasks = it, isLoading = false) }
+                .map<List<TaskEntity>,TabTasksUiState> {
+                    Thread.sleep(2000)
+                    TabTasksUiState(tasks = it, isLoading = false)
+                }
                 .onStart { emit(TabTasksUiState(isLoading = true)) }
         }.stateIn(
             viewModelScope,
