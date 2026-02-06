@@ -83,7 +83,7 @@ fun MainScreen(viewModel: TaskViewModel) {
 @Composable
 fun TaskTabBar(current: TaskTab, onTabChange: (TaskTab) -> Unit) {
     TabRow(selectedTabIndex = current.ordinal) {
-        TaskTab.values().forEach { tab ->
+        TaskTab.entries.forEach { tab ->
             Tab(
                 selected = tab == current,
                 onClick = { onTabChange(tab) },
@@ -254,14 +254,6 @@ fun TaskItem(
                     text = task.content,
                     modifier = Modifier
                         .padding(16.dp)
-                        .combinedClickable(
-                            onClick = {},
-                            onLongClick = {
-                                if (tab == TaskTab.DONE) {
-                                    // 弹菜单：删除 / 恢复
-                                }
-                            }
-                        )
                 )
             }
         }
