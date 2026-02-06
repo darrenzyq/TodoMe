@@ -32,6 +32,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -135,8 +136,10 @@ fun TaskDaySection(
         }
 
         if (expanded) {
-            tasks.forEach {
-                TaskItem(it, tab, viewModel)
+            tasks.forEach { task ->
+                key(task.id) {
+                    TaskItem(task, tab, viewModel)
+                }
             }
         }
     }
@@ -210,6 +213,5 @@ fun TaskItem(
         }
     }
 }
-
 
 
