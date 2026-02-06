@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
@@ -57,7 +59,11 @@ import com.drzhang.todo.data.TaskTab
 import com.drzhang.todo.mode.TaskViewModel
 
 @Composable
-fun MainScreen(viewModel: TaskViewModel) {
+fun MainScreen(
+    viewModel: TaskViewModel,
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit
+) {
     val tab by viewModel.currentTab.collectAsState()
     val taskState by viewModel.tasksState.collectAsStateWithLifecycle()
 
@@ -66,8 +72,16 @@ fun MainScreen(viewModel: TaskViewModel) {
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.addTask() }) {
-                Icon(Icons.Default.Add, contentDescription = null)
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                FloatingActionButton(onClick = onToggleTheme) {
+                    Icon(
+                        imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                        contentDescription = null
+                    )
+                }
+                FloatingActionButton(onClick = { viewModel.addTask() }) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                }
             }
         }
     ) { padding ->
