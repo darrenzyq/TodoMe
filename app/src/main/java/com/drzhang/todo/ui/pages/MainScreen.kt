@@ -199,14 +199,18 @@ fun TaskItem(
             enableDismissFromStartToEnd = canSwipeToDelete,
             enableDismissFromEndToStart = canSwipeToComplete || canSwipeToRestore,
             backgroundContent = {
-                val isStartToEnd = dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd
-                val icon = when {
-                    isStartToEnd -> Icons.Default.Delete
-                    canSwipeToComplete -> Icons.Default.Check
-                    canSwipeToRestore -> Icons.Default.Restore
-                    else -> Icons.Default.Edit
+                val direction = dismissState.dismissDirection
+                val icon = when (direction) {
+                    SwipeToDismissBoxValue.StartToEnd -> Icons.Default.Delete
+                    SwipeToDismissBoxValue.EndToStart -> when {
+                        canSwipeToComplete -> Icons.Default.Check
+                        canSwipeToRestore -> Icons.Default.Restore
+                        else -> null
+                    }
+
+                    SwipeToDismissBoxValue.Settled -> null
                 }
-                val alignment = if (isStartToEnd) {
+                val alignment = if (direction == SwipeToDismissBoxValue.StartToEnd) {
                     Alignment.CenterStart
                 } else {
                     Alignment.CenterEnd
@@ -218,11 +222,13 @@ fun TaskItem(
                         .padding(horizontal = 12.dp, vertical = 4.dp),
                     contentAlignment = alignment
                 ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    icon?.let {
+                        Icon(
+                            imageVector = it,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         ) {
@@ -251,4 +257,3 @@ fun TaskItem(
         }
     }
 }
-
