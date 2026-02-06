@@ -13,7 +13,6 @@ import com.drzhang.todo.data.TaskStatus
 import com.drzhang.todo.data.TaskTab
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 class TaskViewModelFactory(
     private val repository: TaskRepository
@@ -32,13 +31,34 @@ class TaskViewModel(
     private val repository: TaskRepository
 ) : ViewModel() {
 
+    data class TabTasksUiState(
+        val tasks: List<TaskEntity> = emptyList(),
+        val isLoading: Boolean = true
+    )
+
     private val _currentTab = MutableStateFlow(TaskTab.TODO)
     val currentTab = _currentTab.asStateFlow()
 
+    private val _tabTasksUiState: StateFlow<TabTasksUiState> =
+        _currentTab.flatMapLatest { tab ->
+            repository.getTasks(tab)
+                .map<TabTasksUiState> { TabTasksUiState(tasks = it, isLoading = false) }
+                .onStart { emit(TabTasksUiState(isLoading = true)) }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            TabTasksUiState()
+        )
+
     val tasks: StateFlow<List<TaskEntity>> =
-        _currentTab.flatMapLatest {
-            repository.getTasks(it)
-        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        _tabTasksUiState
+            .map { it.tasks }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    val isTabLoading: StateFlow<Boolean> =
+        _tabTasksUiState
+            .map { it.isLoading }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
     fun switchTab(tab: TaskTab) {
         _currentTab.value = tab
