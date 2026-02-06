@@ -25,6 +25,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Tab
@@ -50,6 +51,7 @@ import com.drzhang.todo.mode.TaskViewModel
 fun MainScreen(viewModel: TaskViewModel) {
     val tab by viewModel.currentTab.collectAsState()
     val tasks by viewModel.tasks.collectAsState()
+    val isTabLoading by viewModel.isTabLoading.collectAsState()
 
     val showEditor = viewModel.showEditor
     val editingTask = viewModel.editingTask
@@ -63,7 +65,7 @@ fun MainScreen(viewModel: TaskViewModel) {
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             TaskTabBar(tab, viewModel::switchTab)
-            TaskList(tab, tasks, viewModel)
+            TaskList(tab, tasks, isTabLoading, viewModel)
         }
 
         if (showEditor) {
@@ -95,8 +97,16 @@ fun TaskTabBar(current: TaskTab, onTabChange: (TaskTab) -> Unit) {
 fun TaskList(
     tab: TaskTab,
     tasks: List<TaskEntity>,
+    isLoading: Boolean,
     viewModel: TaskViewModel
 ) {
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
     val grouped = tasks.groupBy { it.taskDate }
 
     LazyColumn {
