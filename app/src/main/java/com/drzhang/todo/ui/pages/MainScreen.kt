@@ -13,9 +13,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -152,16 +154,39 @@ fun TaskItem(
     viewModel: TaskViewModel
 ) {
     val priority = TaskPriority.from(task.priority)
+    val canSwipeToComplete = tab == TaskTab.TODO
+    val canSwipeToRestore = tab == TaskTab.DONE
+    val canSwipeToDelete = true
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
-            if (value == SwipeToDismissBoxValue.EndToStart &&
-                tab == TaskTab.TODO
-            ) {
-                viewModel.markDone(task)
-                true
-            } else {
-                false
+            when (value) {
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    if (canSwipeToDelete) {
+                        viewModel.delete(task)
+                        true
+                    } else {
+                        false
+                    }
+                }
+
+                SwipeToDismissBoxValue.EndToStart -> {
+                    when {
+                        canSwipeToComplete -> {
+                            viewModel.markDone(task)
+                            true
+                        }
+
+                        canSwipeToRestore -> {
+                            viewModel.restore(task)
+                            true
+                        }
+
+                        else -> false
+                    }
+                }
+
+                SwipeToDismissBoxValue.Settled -> false
             }
         }
     )
@@ -171,17 +196,30 @@ fun TaskItem(
     }) {
         SwipeToDismissBox(
             state = dismissState,
-            enableDismissFromStartToEnd = false,
-            enableDismissFromEndToStart = tab == TaskTab.TODO,
+            enableDismissFromStartToEnd = canSwipeToDelete,
+            enableDismissFromEndToStart = canSwipeToComplete || canSwipeToRestore,
             backgroundContent = {
+                val isStartToEnd = dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd
+                val icon = when {
+                    isStartToEnd -> Icons.Default.Delete
+                    canSwipeToComplete -> Icons.Default.Check
+                    canSwipeToRestore -> Icons.Default.Restore
+                    else -> Icons.Default.Edit
+                }
+                val alignment = if (isStartToEnd) {
+                    Alignment.CenterStart
+                } else {
+                    Alignment.CenterEnd
+                }
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 12.dp, vertical = 4.dp),
-                    contentAlignment = Alignment.CenterEnd
+                    contentAlignment = alignment
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
+                        imageVector = icon,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -213,5 +251,4 @@ fun TaskItem(
         }
     }
 }
-
 
